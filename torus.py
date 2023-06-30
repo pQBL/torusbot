@@ -3,7 +3,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from env import USER_EMAIL, USER_PASSWORD
+from env import USER_EMAIL, USER_PASSWORD, CURRICULUM_URL
 from time import sleep
 from question import Question
 
@@ -23,7 +23,7 @@ question = Question.from_string(example_question)
 
 
 driver = webdriver.Chrome()
-driver.get("https://qbl.sys.kth.se/authoring/project/dd1396__parallel_and_concurren/curriculum/unit_zmuf3")
+driver.get(CURRICULUM_URL)
 
 # close the cookie banner
 close_cookies_btn = WebDriverWait(driver, 10).until(
@@ -41,7 +41,13 @@ password_element.send_keys(USER_PASSWORD)
 submit_btn = driver.find_element(By.XPATH, "/html/body/div[2]/main/div[2]/form/button")
 submit_btn.click()
 
-sleep(2)
+sleep(1)
+
+# open unit
+
+driver.find_element(By.PARTIAL_LINK_TEXT, "Unit 2:").click()
+
+sleep(1)
 
 # edit page
 wait = WebDriverWait(driver, 10)
@@ -85,13 +91,13 @@ alt1_input.send_keys(Keys.BACKSPACE * 8 + question.answer_options[0])
 alt2_input.send_keys(Keys.BACKSPACE * 8 + question.answer_options[1])
 alt3_input.send_keys(question.answer_options[2])
 
-sleep(3)
+sleep(1)
 
 # add answer feedback
 
 question_block.find_element(By.LINK_TEXT, "ANSWER KEY").click()
 
-sleep(5)
+sleep(1)
 
 # click on add targeted feedback twice
 
@@ -102,6 +108,7 @@ question_block.find_elements(By.CSS_SELECTOR, ".btn.btn-link.pl-0")[-1].click()
 driver.execute_script("arguments[0].scrollIntoView();", question_block)
 correct_ans_radio_btns = question_block.find_elements(By.CSS_SELECTOR, ".oli-radio.flex-shrink-0")[3:6] # first three are on the question page
 correct_ans_radio_btns[question.correct_option].click()
+
 sleep(1)
 
 div_cards = question_block.find_elements(By.CLASS_NAME, "card")
