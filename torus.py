@@ -5,6 +5,21 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from env import USER_EMAIL, USER_PASSWORD
 from time import sleep
+from question import Question
+
+
+example_question = """When is it more advantageous to use pointer receivers over value receivers in Go?
+
+    A) When the method needs to modify the receiver value or when the receiver is a large struct.
+    - Correct! Using pointer receivers can be more efficient when the receiver is a large struct because it avoids copying the value. Also, if the method needs to modify the receiver value, a pointer receiver is required.
+
+    B) It is always better to use value receivers in Go.
+    - Incorrect! This is a misconception. While value receivers can be easier to understand and use, there are situations where pointer receivers are more efficient or necessary, such as when the method needs to modify the receiver value or when the receiver is a large struct.
+
+    C) It is always better to use pointer receivers in Go.
+    - Incorrect! This is a misconception. The choice between value receivers and pointer receivers depends on the specific requirements and constraints of the situation. For example, value receivers are typically used when the method does not need to modify the receiver and the receiver is a small struct.
+"""
+question = Question.from_string(example_question)
 
 
 driver = webdriver.Chrome()
@@ -65,10 +80,10 @@ alt1_input = slate_editors[1]
 alt2_input = slate_editors[2]
 alt3_input = slate_editors[3]
 
-question_input.send_keys("What is the answer to life, the universe and everything?")
-alt1_input.send_keys(Keys.BACKSPACE * 8 + "42")
-alt2_input.send_keys(Keys.BACKSPACE * 8 + "43")
-alt3_input.send_keys("44")
+question_input.send_keys(question.question_text)
+alt1_input.send_keys(Keys.BACKSPACE * 8 + question.answer_options[0])
+alt2_input.send_keys(Keys.BACKSPACE * 8 + question.answer_options[1])
+alt3_input.send_keys(question.answer_options[2])
 
 sleep(3)
 
@@ -86,7 +101,7 @@ question_block.find_elements(By.CSS_SELECTOR, ".btn.btn-link.pl-0")[-1].click()
 # select correct answer
 driver.execute_script("arguments[0].scrollIntoView();", question_block)
 correct_ans_radio_btns = question_block.find_elements(By.CSS_SELECTOR, ".oli-radio.flex-shrink-0")[3:6] # first three are on the question page
-correct_ans_radio_btns[0].click()
+correct_ans_radio_btns[question.correct_option].click()
 sleep(1)
 
 div_cards = question_block.find_elements(By.CLASS_NAME, "card")
@@ -96,16 +111,17 @@ targeted_feedback_1_div = div_cards[2]
 targeted_feedback_2_div = div_cards[3]
 
 correct_ans_feedback_div.find_element(By.CLASS_NAME, "slate-editor").send_keys(
-    Keys.BACKSPACE * 8 + "Correct! 42 is the answer to life, the universe and everything!"
+    Keys.BACKSPACE * 8 + question.feedback[question.correct_option]
 )
 
+non_correct_options = [i for i in range(3) if i != question.correct_option]
 select_corresponding_answer_btns = targeted_feedback_1_div.find_elements(By.CSS_SELECTOR, ".oli-radio.flex-shrink-0")
-select_corresponding_answer_btns[1].click()
-targeted_feedback_1_div.find_element(By.CLASS_NAME, "slate-editor").send_keys("Incorrect! NOT 43!")
+select_corresponding_answer_btns[non_correct_options[0]].click()
+targeted_feedback_1_div.find_element(By.CLASS_NAME, "slate-editor").send_keys(question.feedback[non_correct_options[0]])
 
 select_corresponding_answer_btns = targeted_feedback_2_div.find_elements(By.CSS_SELECTOR, ".oli-radio.flex-shrink-0")
-select_corresponding_answer_btns[2].click()
-targeted_feedback_2_div.find_element(By.CLASS_NAME, "slate-editor").send_keys("Incorrect! NOT 44!")
+select_corresponding_answer_btns[non_correct_options[1]].click()
+targeted_feedback_2_div.find_element(By.CLASS_NAME, "slate-editor").send_keys(question.feedback[non_correct_options[1]])
 
 sleep(200)
 
