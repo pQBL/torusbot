@@ -22,8 +22,8 @@ class Question:
     correct_option: int
 
     @classmethod
-    def from_string(cls, question_string: str) -> 'Question':
-        lines = question_string.strip().split("\n")
+    def from_string(cls, question_block: str) -> 'Question':
+        lines = question_block.strip().split("\n")
         question_text = lines[0].strip()
         answer_options = [lines[i].strip()[3:] for i in range(2, len(lines), 3)]
         feedback = [lines[i].strip()[2:] for i in range(3, len(lines), 3)]
