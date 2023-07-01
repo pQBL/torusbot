@@ -30,17 +30,13 @@ def click_element(driver, locator, attempts=1):
             continue
 
 
-def send_keys_to_element(driver, locator, keys):
-    wait_for_element(driver, locator).send_keys(keys)
-
-
 def login(driver, email, password):
     email_element_locator = (By.XPATH, "/html/body/div[2]/main/div[2]/form/div[1]/input")
     password_element_locator = (By.XPATH, "/html/body/div[2]/main/div[2]/form/div[2]/input")
     submit_btn_locator = (By.XPATH, "/html/body/div[2]/main/div[2]/form/button")
 
-    send_keys_to_element(driver, email_element_locator, email)
-    send_keys_to_element(driver, password_element_locator, password)
+    wait_for_element(driver, email_element_locator).send_keys(email)
+    wait_for_element(driver, password_element_locator).send_keys(password)
     click_element(driver, submit_btn_locator)
 
 
