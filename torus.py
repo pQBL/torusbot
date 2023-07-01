@@ -1,122 +1,136 @@
+from time import sleep
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from env import USER_EMAIL, USER_PASSWORD, CURRICULUM_URL
-from time import sleep
 from page_definition import Page_definition
+from selenium.webdriver.common.keys import Keys
+from selenium.common.exceptions import StaleElementReferenceException, ElementClickInterceptedException
 
 
-page_definition = Page_definition.from_file('input.txt')
+def wait_for_element(driver, locator, timeout=10):
+    return WebDriverWait(driver, timeout).until(EC.presence_of_element_located(locator))
 
-driver = webdriver.Chrome()
-driver.get(CURRICULUM_URL)
 
-# close the cookie banner
-close_cookies_btn = WebDriverWait(driver, 10).until(
-    EC.element_to_be_clickable((By.XPATH, "/html/body/div[4]/div/div/div/div[1]/button"))
-)
-close_cookies_btn.click() 
+def wait_for_elements(driver, by, value, count, timeout=10):
+    return WebDriverWait(driver, timeout).until(lambda d: len(d.find_elements(by, value)) >= count)
 
-# # login
-email_element = driver.find_element(By.XPATH, "/html/body/div[2]/main/div[2]/form/div[1]/input")
-email_element.send_keys(USER_EMAIL)
 
-password_element = driver.find_element(By.XPATH, "/html/body/div[2]/main/div[2]/form/div[2]/input")
-password_element.send_keys(USER_PASSWORD)
+def wait_for_clickable_element(driver, locator, timeout=10):
+    return WebDriverWait(driver, timeout).until(EC.element_to_be_clickable(locator))
 
-submit_btn = driver.find_element(By.XPATH, "/html/body/div[2]/main/div[2]/form/button")
-submit_btn.click()
 
-sleep(1)
+def click_element(driver, locator, attempts=1):
+    for _ in range(attempts):
+        try:
+            WebDriverWait(driver, 10).until(EC.element_to_be_clickable(locator)).click()
+            break
+        except StaleElementReferenceException or ElementClickInterceptedException:
+            continue
 
-# open unit
-driver.find_element(By.PARTIAL_LINK_TEXT, page_definition.unit).click()
 
-sleep(1)
+def send_keys_to_element(driver, locator, keys):
+    wait_for_element(driver, locator).send_keys(keys)
 
-# edit page
-wait = WebDriverWait(driver, 10)
 
-edit_btn = wait.until(
-    EC.element_to_be_clickable((By.LINK_TEXT, "Edit Page"))
-)
-edit_btn.click()
+def login(driver, email, password):
+    email_element_locator = (By.XPATH, "/html/body/div[2]/main/div[2]/form/div[1]/input")
+    password_element_locator = (By.XPATH, "/html/body/div[2]/main/div[2]/form/div[2]/input")
+    submit_btn_locator = (By.XPATH, "/html/body/div[2]/main/div[2]/form/button")
 
-# add multiple choice question
-sleep(5)
+    send_keys_to_element(driver, email_element_locator, email)
+    send_keys_to_element(driver, password_element_locator, password)
+    click_element(driver, submit_btn_locator)
 
-for question in page_definition.questions[:3]:
 
+def close_cookie_banner(driver):
+    close_cookies_btn_locator = (By.XPATH, "/html/body/div[4]/div/div/div/div[1]/button")
+    click_element(driver, close_cookies_btn_locator)
+
+
+def open_unit(driver, unit_name):
+    unit_locator = (By.PARTIAL_LINK_TEXT, unit_name)
+    click_element(driver, unit_locator, 3)
+
+
+def open_page(driver):
+    edit_btn_locator = (By.LINK_TEXT, "Edit Page")
+    click_element(driver, edit_btn_locator, 3)
+
+
+def add_multiple_choice_question(driver, question):
+    prev_num_resource_blocks = len(driver.find_elements(By.CLASS_NAME, "resource-block-editor"))
+    add_new_multiple_choice_question(driver)
+    wait_for_elements(driver, By.CLASS_NAME, "resource-block-editor", prev_num_resource_blocks + 1)
+    question_block = driver.find_elements(By.CLASS_NAME, "resource-block-editor")[-1]
+    fill_in_question(question_block, question)
+    fill_in_answer_options(driver, question_block, question)
+    question_block.find_element(By.LINK_TEXT, "ANSWER KEY").click()
+    fill_in_feedback(question_block, question)
+
+
+def add_new_multiple_choice_question(driver):
+    wait_for_elements(driver, By.CLASS_NAME, "addResourceContent_W\\+36phqP", 2)
     add_element_menu_btns = driver.find_elements(By.CSS_SELECTOR, ".addResourceContent_W\\+36phqP")
     add_element_menu_btns[-1].click()
-
-    sleep(1)
-
-    options_bounding_box = wait.until(
-        EC.visibility_of_element_located((By.CLASS_NAME, 'activities'))
-    )
+    options_bounding_box = wait_for_element(driver, (By.CLASS_NAME, 'activities'))
     add_MCQ_btn = options_bounding_box.find_elements(By.CLASS_NAME, 'resource-choice')[1]
     add_MCQ_btn.click()
 
-    # fill in questions
 
-    sleep(1)
+def fill_in_question(question_block, question):
+    question_block.find_elements(By.CLASS_NAME, "slate-editor")[0].send_keys(question.question_text)
 
-    question_block = driver.find_elements(By.CSS_SELECTOR, ".resource-block-editor")[-1]
 
+def fill_in_answer_options(driver, question_block, question):
     # add third answer option
+    wait_for_element(driver, (By.CSS_SELECTOR, ".addChoiceContainer_nMRQoZI6"))
     question_block.find_element(By.CSS_SELECTOR, ".addChoiceContainer_nMRQoZI6").find_element(By.CSS_SELECTOR, "button").click()
+    answer_option_slate_editors = question_block.find_elements(By.CLASS_NAME, "slate-editor")[1:4]
+    for i in range(3):
+        answer_option_slate_editors[i].send_keys(Keys.BACKSPACE * 8 + question.answer_options[i])
 
-    slate_editors = question_block.find_elements(By.CLASS_NAME, "slate-editor")
-    question_input = slate_editors[0]
-    alt1_input = slate_editors[1]
-    alt2_input = slate_editors[2]
-    alt3_input = slate_editors[3]
 
-    question_input.send_keys(question.question_text)
-    alt1_input.send_keys(Keys.BACKSPACE * 8 + question.answer_options[0])
-    alt2_input.send_keys(Keys.BACKSPACE * 8 + question.answer_options[1])
-    alt3_input.send_keys(question.answer_options[2])
+def fill_in_feedback(question_block, question):
+    mark_correct_answer_radio_btns = question_block.find_elements(By.CSS_SELECTOR, ".oli-radio.flex-shrink-0")[3:6] # first three are on the question page
+    mark_correct_answer_radio_btns[question.correct_option].click()
+    correct_ans_feedback = question_block.find_element(By.CLASS_NAME, "card").find_element(By.CLASS_NAME, "slate-editor")
+    correct_ans_feedback.send_keys(Keys.BACKSPACE * 8 + question.feedback[question.correct_option])
+    add_targeted_feedback(question_block, question)
 
-    sleep(1)
 
-    # add answer feedback
-
-    question_block.find_element(By.LINK_TEXT, "ANSWER KEY").click()
-
-    sleep(1)
-
-    # click on add targeted feedback twice
-
-    question_block.find_elements(By.CSS_SELECTOR, ".btn.btn-link.pl-0")[-1].click()
-    question_block.find_elements(By.CSS_SELECTOR, ".btn.btn-link.pl-0")[-1].click()
-
-    # select correct answer
-    driver.execute_script("arguments[0].scrollIntoView();", question_block)
-    correct_ans_radio_btns = question_block.find_elements(By.CSS_SELECTOR, ".oli-radio.flex-shrink-0")[3:6] # first three are on the question page
-    correct_ans_radio_btns[question.correct_option].click()
-
-    sleep(1)
-
-    div_cards = question_block.find_elements(By.CLASS_NAME, "card")
-    # ignore div_cards[1] (wrong answer feedback) because it's not visible when using the targeted feedback
-    correct_ans_feedback_div = div_cards[0]
-    targeted_feedback_1_div = div_cards[2]
-    targeted_feedback_2_div = div_cards[3]
-
-    correct_ans_feedback_div.find_element(By.CLASS_NAME, "slate-editor").send_keys(
-        Keys.BACKSPACE * 8 + question.feedback[question.correct_option]
-    )
+def add_targeted_feedback(question_block, question):
+    add_targeted_feedback_btn = question_block.find_elements(By.CSS_SELECTOR, ".btn.btn-link.pl-0")[-1]
+    add_targeted_feedback_btn.click()
+    add_targeted_feedback_btn.click()
+    targeted_feedback_cards = question_block.find_elements(By.CLASS_NAME, "card")[2:4]
 
     non_correct_options = [i for i in range(3) if i != question.correct_option]
-    select_corresponding_answer_btns = targeted_feedback_1_div.find_elements(By.CSS_SELECTOR, ".oli-radio.flex-shrink-0")
-    select_corresponding_answer_btns[non_correct_options[0]].click()
-    targeted_feedback_1_div.find_element(By.CLASS_NAME, "slate-editor").send_keys(question.feedback[non_correct_options[0]])
+    for option_index, targeted_feedback_card in zip(non_correct_options, targeted_feedback_cards):
+        select_corresponding_answer_btns = targeted_feedback_card.find_elements(By.CSS_SELECTOR, ".oli-radio.flex-shrink-0")
+        select_corresponding_answer_btns[option_index].click()
+        targeted_feedback_card.find_element(By.CLASS_NAME, "slate-editor").send_keys(question.feedback[option_index])
 
-    select_corresponding_answer_btns = targeted_feedback_2_div.find_elements(By.CSS_SELECTOR, ".oli-radio.flex-shrink-0")
-    select_corresponding_answer_btns[non_correct_options[1]].click()
-    targeted_feedback_2_div.find_element(By.CLASS_NAME, "slate-editor").send_keys(question.feedback[non_correct_options[1]])
 
-sleep(200)
+def main():
+    page_definition = Page_definition.from_file('input.txt')
+
+    driver = webdriver.Chrome()
+    driver.get(CURRICULUM_URL)
+
+    close_cookie_banner(driver)
+    login(driver, USER_EMAIL, USER_PASSWORD)
+    
+    open_unit(driver, page_definition.unit)
+
+    open_page(driver)
+
+    for question in page_definition.questions[:2]:
+        add_multiple_choice_question(driver, question)
+
+    sleep(200)
+
+
+if __name__ == "__main__":
+    main()
