@@ -68,7 +68,7 @@ def add_multiple_choice_question(driver, question):
 
 def add_new_multiple_choice_question(driver):
     wait_for_elements(driver, By.CLASS_NAME, "addResourceContent_W\\+36phqP", 2)
-    add_element_menu_btns = driver.find_elements(By.CSS_SELECTOR, ".addResourceContent_W\\+36phqP")
+    add_element_menu_btns = driver.find_elements(By.CLASS_NAME, "addResourceContent_W\\+36phqP")
     add_element_menu_btns[-1].click()
     options_bounding_box = wait_for_element(driver, (By.CLASS_NAME, 'activities'))
     add_MCQ_btn = options_bounding_box.find_elements(By.CLASS_NAME, 'resource-choice')[1]
