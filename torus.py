@@ -97,10 +97,7 @@ def fill_in_feedback(question_block, question):
     mark_correct_answer_radio_btns[question.correct_option].click()
     correct_ans_feedback = question_block.find_element(By.CLASS_NAME, "card").find_element(By.CLASS_NAME, "slate-editor")
     correct_ans_feedback.send_keys(Keys.BACKSPACE * 8 + question.feedback[question.correct_option])
-    add_targeted_feedback(question_block, question)
 
-
-def add_targeted_feedback(question_block, question):
     add_targeted_feedback_btn = question_block.find_elements(By.CSS_SELECTOR, ".btn.btn-link.pl-0")[-1]
     add_targeted_feedback_btn.click()
     add_targeted_feedback_btn.click()
