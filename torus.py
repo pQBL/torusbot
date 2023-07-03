@@ -1,12 +1,13 @@
 import os
 from time import sleep
+from page_definition import Page_definition
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from page_definition import Page_definition
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import StaleElementReferenceException, ElementClickInterceptedException, TimeoutException
+from selenium.webdriver.chrome.options import Options
 
 
 def wait_for_element(driver, locator, timeout=10):
@@ -151,7 +152,10 @@ def fill_in_feedback(question_block, question):
 def main():
     page_definition = Page_definition.from_file('input.txt')
 
-    driver = webdriver.Chrome()
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    driver = webdriver.Chrome(options=chrome_options)
+
     driver.get(os.getenv('CURRICULUM_URL'))
 
     close_cookie_banner(driver)
@@ -163,8 +167,6 @@ def main():
 
     for question in page_definition.questions[:2]:
         add_multiple_choice_question(driver, question)
-
-    sleep(200)
 
 
 if __name__ == "__main__":
