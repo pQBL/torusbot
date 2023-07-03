@@ -56,7 +56,7 @@ def open_page(driver):
 
 
 def add_multiple_choice_question(driver, question):
-    resource_block_locator = (By.CLASS_NAME, "resource-block-editor")
+    resource_block_locator = (By.CSS_SELECTOR, ".resource-block-editor")
     prev_num_resource_blocks = len(driver.find_elements(*resource_block_locator))
     add_new_multiple_choice_question(driver)
     wait_for_elements(driver, resource_block_locator, prev_num_resource_blocks + 1)
@@ -68,23 +68,23 @@ def add_multiple_choice_question(driver, question):
 
 
 def add_new_multiple_choice_question(driver):
-    add_element_menu_btns_locator = (By.CLASS_NAME, "addResourceContent_W\\+36phqP")
+    add_element_menu_btns_locator = (By.CSS_SELECTOR, ".addResourceContent_W\\+36phqP")
     wait_for_elements(driver, add_element_menu_btns_locator, 2)
     add_element_menu_btns = driver.find_elements(*add_element_menu_btns_locator)
     add_element_menu_btns[-1].click()
-    options_bounding_box = wait_for_element(driver, (By.CLASS_NAME, 'activities'))
-    add_MCQ_btn = options_bounding_box.find_elements(By.CLASS_NAME, 'resource-choice')[1]
+    options_bounding_box = wait_for_element(driver, (By.CSS_SELECTOR, ".activities"))
+    add_MCQ_btn = options_bounding_box.find_elements(By.CSS_SELECTOR, ".resource-choice")[1]
     add_MCQ_btn.click()
 
 
 def fill_in_question(question_block, question):
-    question_block.find_elements(By.CLASS_NAME, "slate-editor")[0].send_keys(question.question_text)
+    question_block.find_elements(By.CSS_SELECTOR, ".slate-editor")[0].send_keys(question.question_text)
 
 
 def fill_in_answer_options(question_block, question):
     add_new_answer_option_div_locator = (By.CSS_SELECTOR, ".addChoiceContainer_nMRQoZI6")
     wait_for_element(question_block, add_new_answer_option_div_locator).find_element(By.CSS_SELECTOR, "button").click()
-    answer_option_slate_editors = question_block.find_elements(By.CLASS_NAME, "slate-editor")[1:4]
+    answer_option_slate_editors = question_block.find_elements(By.CSS_SELECTOR, ".slate-editor")[1:4]
     for i in range(3):
         answer_option_slate_editors[i].send_keys(Keys.BACKSPACE * 8 + question.answer_options[i])
 
@@ -92,19 +92,19 @@ def fill_in_answer_options(question_block, question):
 def fill_in_feedback(question_block, question):
     mark_correct_answer_radio_btns = question_block.find_elements(By.CSS_SELECTOR, ".oli-radio.flex-shrink-0")[3:6] # first three are on the question page
     mark_correct_answer_radio_btns[question.correct_option].click()
-    correct_ans_feedback = question_block.find_element(By.CLASS_NAME, "card").find_element(By.CLASS_NAME, "slate-editor")
+    correct_ans_feedback = question_block.find_element(By.CSS_SELECTOR, ".card").find_element(By.CSS_SELECTOR, ".slate-editor")
     correct_ans_feedback.send_keys(Keys.BACKSPACE * 8 + question.feedback[question.correct_option])
 
     add_targeted_feedback_btn = question_block.find_elements(By.CSS_SELECTOR, ".btn.btn-link.pl-0")[-1]
     add_targeted_feedback_btn.click()
     add_targeted_feedback_btn.click()
-    targeted_feedback_cards = question_block.find_elements(By.CLASS_NAME, "card")[2:4]
+    targeted_feedback_cards = question_block.find_elements(By.CSS_SELECTOR, ".card")[2:4]
 
     non_correct_options = [i for i in range(3) if i != question.correct_option]
     for option_index, targeted_feedback_card in zip(non_correct_options, targeted_feedback_cards):
         select_corresponding_answer_btns = targeted_feedback_card.find_elements(By.CSS_SELECTOR, ".oli-radio.flex-shrink-0")
         select_corresponding_answer_btns[option_index].click()
-        targeted_feedback_card.find_element(By.CLASS_NAME, "slate-editor").send_keys(question.feedback[option_index])
+        targeted_feedback_card.find_element(By.CSS_SELECTOR, ".slate-editor").send_keys(question.feedback[option_index])
 
 
 def main():
