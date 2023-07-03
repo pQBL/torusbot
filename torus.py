@@ -31,9 +31,9 @@ def click_element(driver, locator, attempts=1):
 
 
 def login(driver, email, password):
-    email_element_locator = (By.XPATH, "/html/body/div[2]/main/div[2]/form/div[1]/input")
-    password_element_locator = (By.XPATH, "/html/body/div[2]/main/div[2]/form/div[2]/input")
-    submit_btn_locator = (By.XPATH, "/html/body/div[2]/main/div[2]/form/button")
+    email_element_locator = (By.ID, "user_email")
+    password_element_locator = (By.ID, "user_password")
+    submit_btn_locator = (By.CSS_SELECTOR, ".btn.btn-md.btn-primary.btn-block")
 
     wait_for_element(driver, email_element_locator).send_keys(email)
     wait_for_element(driver, password_element_locator).send_keys(password)
