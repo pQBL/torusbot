@@ -72,9 +72,28 @@ def create_unit(driver, unit_name):
     driver.find_element(*unit_edit_form_locator).find_element(*save_btn_locator).click()
 
 
-def open_page(driver):
-    edit_btn_locator = (By.LINK_TEXT, "Edit Page")
+def create_page(driver, page_name):
+    new_page_btn_locator = (By.CSS_SELECTOR, 'button[phx-value-type="Unscored"]')
+    edit_page_btns_locator = (By.LINK_TEXT, "Edit Page")
+
+    prev_num_pages = len(driver.find_elements(*edit_page_btns_locator))
+    click_element(driver, new_page_btn_locator, 5)
+    wait_for_elements(driver, edit_page_btns_locator, prev_num_pages + 1)
+    driver.find_elements(*edit_page_btns_locator)[-1].click()
+    rename_page(driver, page_name)
+
+
+def rename_page(driver, page_name):
+    edit_btn_locator = (By.CSS_SELECTOR, ".btn.btn-link.btn-sm")
+    title_input_locator = (By.CSS_SELECTOR, 'input[value="New Page"]')
+    save_btn_locator = (By.CSS_SELECTOR, ".btn.btn-primary.btn-sm.my-2.ml-2")
+
     click_element(driver, edit_btn_locator, 5)
+    wait_for_element(driver, title_input_locator).send_keys(Keys.BACKSPACE * 8 + page_name)
+    click_element(driver, save_btn_locator)
+    # Refresh is needed because otherwise add_multiple_choice_question will be interrupted when
+    # the page refreshes some time after the save btn has been clicked
+    driver.refresh()
 
 
 def add_multiple_choice_question(driver, question):
@@ -140,7 +159,7 @@ def main():
     
     open_unit(driver, page_definition.unit)
 
-    open_page(driver)
+    create_page(driver, page_definition.page)
 
     for question in page_definition.questions[:2]:
         add_multiple_choice_question(driver, question)
