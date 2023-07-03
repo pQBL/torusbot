@@ -81,8 +81,7 @@ def fill_in_question(question_block, question):
 
 def fill_in_answer_options(driver, question_block, question):
     # add third answer option
-    wait_for_element(driver, (By.CSS_SELECTOR, ".addChoiceContainer_nMRQoZI6"))
-    question_block.find_element(By.CSS_SELECTOR, ".addChoiceContainer_nMRQoZI6").find_element(By.CSS_SELECTOR, "button").click()
+    wait_for_element(question_block, (By.CSS_SELECTOR, ".addChoiceContainer_nMRQoZI6")).find_element(By.CSS_SELECTOR, "button").click()
     answer_option_slate_editors = question_block.find_elements(By.CLASS_NAME, "slate-editor")[1:4]
     for i in range(3):
         answer_option_slate_editors[i].send_keys(Keys.BACKSPACE * 8 + question.answer_options[i])
