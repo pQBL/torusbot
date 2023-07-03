@@ -61,7 +61,7 @@ def add_multiple_choice_question(driver, question):
     wait_for_elements(driver, (By.CLASS_NAME, "resource-block-editor"), prev_num_resource_blocks + 1)
     question_block = driver.find_elements(By.CLASS_NAME, "resource-block-editor")[-1]
     fill_in_question(question_block, question)
-    fill_in_answer_options(driver, question_block, question)
+    fill_in_answer_options(question_block, question)
     question_block.find_element(By.LINK_TEXT, "ANSWER KEY").click()
     fill_in_feedback(question_block, question)
 
@@ -80,9 +80,9 @@ def fill_in_question(question_block, question):
     question_block.find_elements(By.CLASS_NAME, "slate-editor")[0].send_keys(question.question_text)
 
 
-def fill_in_answer_options(driver, question_block, question):
-    # add third answer option
-    wait_for_element(question_block, (By.CSS_SELECTOR, ".addChoiceContainer_nMRQoZI6")).find_element(By.CSS_SELECTOR, "button").click()
+def fill_in_answer_options(question_block, question):
+    add_new_answer_option_div_locator = (By.CSS_SELECTOR, ".addChoiceContainer_nMRQoZI6")
+    wait_for_element(question_block, add_new_answer_option_div_locator).find_element(By.CSS_SELECTOR, "button").click()
     answer_option_slate_editors = question_block.find_elements(By.CLASS_NAME, "slate-editor")[1:4]
     for i in range(3):
         answer_option_slate_editors[i].send_keys(Keys.BACKSPACE * 8 + question.answer_options[i])
