@@ -56,10 +56,11 @@ def open_page(driver):
 
 
 def add_multiple_choice_question(driver, question):
-    prev_num_resource_blocks = len(driver.find_elements(By.CLASS_NAME, "resource-block-editor"))
+    resource_block_locator = (By.CLASS_NAME, "resource-block-editor")
+    prev_num_resource_blocks = len(driver.find_elements(*resource_block_locator))
     add_new_multiple_choice_question(driver)
-    wait_for_elements(driver, (By.CLASS_NAME, "resource-block-editor"), prev_num_resource_blocks + 1)
-    question_block = driver.find_elements(By.CLASS_NAME, "resource-block-editor")[-1]
+    wait_for_elements(driver, resource_block_locator, prev_num_resource_blocks + 1)
+    question_block = driver.find_elements(*resource_block_locator)[-1]
     fill_in_question(question_block, question)
     fill_in_answer_options(question_block, question)
     question_block.find_element(By.LINK_TEXT, "ANSWER KEY").click()
