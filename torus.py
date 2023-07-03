@@ -47,12 +47,12 @@ def close_cookie_banner(driver):
 
 def open_unit(driver, unit_name):
     unit_locator = (By.PARTIAL_LINK_TEXT, unit_name)
-    click_element(driver, unit_locator, 3)
+    click_element(driver, unit_locator, 5)
 
 
 def open_page(driver):
     edit_btn_locator = (By.LINK_TEXT, "Edit Page")
-    click_element(driver, edit_btn_locator, 3)
+    click_element(driver, edit_btn_locator, 5)
 
 
 def add_multiple_choice_question(driver, question):
