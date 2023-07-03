@@ -13,8 +13,8 @@ def wait_for_element(driver, locator, timeout=10):
     return WebDriverWait(driver, timeout).until(EC.presence_of_element_located(locator))
 
 
-def wait_for_elements(driver, by, value, count, timeout=10):
-    return WebDriverWait(driver, timeout).until(lambda d: len(d.find_elements(by, value)) >= count)
+def wait_for_elements(driver, locator, count, timeout=10):
+    return WebDriverWait(driver, timeout).until(lambda d: len(d.find_elements(*locator)) >= count)
 
 
 def wait_for_clickable_element(driver, locator, timeout=10):
@@ -58,7 +58,7 @@ def open_page(driver):
 def add_multiple_choice_question(driver, question):
     prev_num_resource_blocks = len(driver.find_elements(By.CLASS_NAME, "resource-block-editor"))
     add_new_multiple_choice_question(driver)
-    wait_for_elements(driver, By.CLASS_NAME, "resource-block-editor", prev_num_resource_blocks + 1)
+    wait_for_elements(driver, (By.CLASS_NAME, "resource-block-editor"), prev_num_resource_blocks + 1)
     question_block = driver.find_elements(By.CLASS_NAME, "resource-block-editor")[-1]
     fill_in_question(question_block, question)
     fill_in_answer_options(driver, question_block, question)
@@ -67,7 +67,7 @@ def add_multiple_choice_question(driver, question):
 
 
 def add_new_multiple_choice_question(driver):
-    wait_for_elements(driver, By.CLASS_NAME, "addResourceContent_W\\+36phqP", 2)
+    wait_for_elements(driver, (By.CLASS_NAME, "addResourceContent_W\\+36phqP"), 2)
     add_element_menu_btns = driver.find_elements(By.CLASS_NAME, "addResourceContent_W\\+36phqP")
     add_element_menu_btns[-1].click()
     options_bounding_box = wait_for_element(driver, (By.CLASS_NAME, 'activities'))
