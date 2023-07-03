@@ -41,8 +41,9 @@ def login(driver, email, password):
 
 
 def close_cookie_banner(driver):
-    close_cookies_btn_locator = (By.XPATH, "/html/body/div[4]/div/div/div/div[1]/button")
-    click_element(driver, close_cookies_btn_locator)
+    cookie_consent_display_locator = (By.ID, "cookie_consent_display")
+    close_cookies_btn_locator = (By.CSS_SELECTOR, 'button[aria-label="Close"]')
+    click_element(wait_for_element(driver, cookie_consent_display_locator), close_cookies_btn_locator)
 
 
 def open_unit(driver, unit_name):
