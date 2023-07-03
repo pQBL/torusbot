@@ -6,7 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from env import USER_EMAIL, USER_PASSWORD, CURRICULUM_URL
 from page_definition import Page_definition
 from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import StaleElementReferenceException, ElementClickInterceptedException
+from selenium.common.exceptions import StaleElementReferenceException, ElementClickInterceptedException, TimeoutException
 
 
 def wait_for_element(driver, locator, timeout=10):
@@ -21,10 +21,10 @@ def wait_for_clickable_element(driver, locator, timeout=10):
     return WebDriverWait(driver, timeout).until(EC.element_to_be_clickable(locator))
 
 
-def click_element(driver, locator, attempts=1):
+def click_element(driver, locator, attempts=1, timeout=10):
     for _ in range(attempts):
         try:
-            WebDriverWait(driver, 10).until(EC.element_to_be_clickable(locator)).click()
+            WebDriverWait(driver, timeout).until(EC.element_to_be_clickable(locator)).click()
             break
         except StaleElementReferenceException or ElementClickInterceptedException:
             continue
@@ -48,7 +48,28 @@ def close_cookie_banner(driver):
 
 def open_unit(driver, unit_name):
     unit_locator = (By.PARTIAL_LINK_TEXT, unit_name)
-    click_element(driver, unit_locator, 5)
+    try:
+        click_element(driver, unit_locator, 5, timeout=5)
+    except TimeoutException:
+        create_unit(driver, unit_name)
+        click_element(driver, unit_locator, 5)
+
+
+def create_unit(driver, unit_name):
+    create_new_unit_locator = (By.CSS_SELECTOR, 'button[phx-value-type="Container"]')
+    unit_drop_down_menu_locator = (By.CSS_SELECTOR, ".btn.dropdown-toggle")
+    options_svg_locator = (By.CSS_SELECTOR, 'svg[data-icon="sliders"]')
+    edit_title_locator = (By.ID, "revision-settings-form_title")
+    unit_edit_form_locator = (By.ID, "revision-settings-form")
+    save_btn_locator = (By.CSS_SELECTOR, ".btn.btn-primary")
+
+    prev_num_units = len(driver.find_elements(*unit_drop_down_menu_locator))
+    click_element(driver, create_new_unit_locator, 5)
+    wait_for_elements(driver, unit_drop_down_menu_locator, prev_num_units + 1)
+    driver.find_elements(*unit_drop_down_menu_locator)[-1].click()
+    driver.find_elements(*options_svg_locator)[-1].find_element(By.XPATH, "..").click()
+    wait_for_element(driver, edit_title_locator).send_keys(Keys.BACKSPACE * 8 + unit_name)
+    driver.find_element(*unit_edit_form_locator).find_element(*save_btn_locator).click()
 
 
 def open_page(driver):
