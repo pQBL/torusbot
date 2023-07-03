@@ -1,9 +1,9 @@
+import os
 from time import sleep
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from env import USER_EMAIL, USER_PASSWORD, CURRICULUM_URL
 from page_definition import Page_definition
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import StaleElementReferenceException, ElementClickInterceptedException, TimeoutException
@@ -152,10 +152,10 @@ def main():
     page_definition = Page_definition.from_file('input.txt')
 
     driver = webdriver.Chrome()
-    driver.get(CURRICULUM_URL)
+    driver.get(os.getenv('CURRICULUM_URL'))
 
     close_cookie_banner(driver)
-    login(driver, USER_EMAIL, USER_PASSWORD)
+    login(driver, os.getenv('USER_EMAIL'), os.getenv('USER_PASSWORD'))
     
     open_unit(driver, page_definition.unit)
 
