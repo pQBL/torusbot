@@ -1,5 +1,5 @@
 import os
-from time import sleep
+import sys
 from page_definition import Page_definition
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -150,7 +150,7 @@ def fill_in_feedback(question_block, question):
 
 
 def main():
-    page_definition = Page_definition.from_file('input.txt')
+    page_definition = Page_definition.from_file(sys.argv[1])
 
     chrome_options = Options()
     chrome_options.add_argument("--headless")
