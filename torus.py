@@ -168,10 +168,9 @@ def main():
     for question in page_definition.questions[:2]:
         add_multiple_choice_question(driver, question)
 
-    current_url = driver.current_url
-    preview_url = current_url.replace('/resource/', '/preview/')
-    print(f"Edit URL: {current_url}")
-    print(f"Preview URL: {preview_url}")
+    print("Deployment successful!")
+    print(f"Edit URL: {driver.current_url}")
+    print(f"Preview URL: {driver.current_url.replace('/resource/', '/preview/')}")
 
 
 if __name__ == "__main__":
