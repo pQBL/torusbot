@@ -10,19 +10,19 @@ from selenium.common.exceptions import StaleElementReferenceException, ElementCl
 from selenium.webdriver.chrome.options import Options
 
 
-def wait_for_element(driver, locator, timeout=10):
+def wait_for_element(driver, locator, timeout=20):
     return WebDriverWait(driver, timeout).until(EC.presence_of_element_located(locator))
 
 
-def wait_for_elements(driver, locator, count, timeout=10):
+def wait_for_elements(driver, locator, count, timeout=20):
     return WebDriverWait(driver, timeout).until(lambda d: len(d.find_elements(*locator)) >= count)
 
 
-def wait_for_clickable_element(driver, locator, timeout=10):
+def wait_for_clickable_element(driver, locator, timeout=20):
     return WebDriverWait(driver, timeout).until(EC.element_to_be_clickable(locator))
 
 
-def click_element(driver, locator, attempts=1, timeout=10):
+def click_element(driver, locator, attempts=1, timeout=20):
     for _ in range(attempts):
         try:
             WebDriverWait(driver, timeout).until(EC.element_to_be_clickable(locator)).click()
@@ -50,7 +50,7 @@ def close_cookie_banner(driver):
 def open_unit(driver, unit_name):
     unit_locator = (By.PARTIAL_LINK_TEXT, unit_name)
     try:
-        click_element(driver, unit_locator, 5, timeout=5)
+        click_element(driver, unit_locator, 5)
     except TimeoutException:
         create_unit(driver, unit_name)
         click_element(driver, unit_locator, 5)
