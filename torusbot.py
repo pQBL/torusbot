@@ -26,7 +26,7 @@ def wait_for_clickable_element(driver, locator, timeout=20):
 def click_element(driver, locator, attempts=1, timeout=20):
     for _ in range(attempts):
         try:
-            WebDriverWait(driver, timeout).until(EC.element_to_be_clickable(locator)).click()
+            wait_for_clickable_element(driver, locator, timeout).click()
             break
         except StaleElementReferenceException or ElementClickInterceptedException:
             continue
