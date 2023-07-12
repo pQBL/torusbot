@@ -12,15 +12,20 @@ from selenium.webdriver.chrome.options import Options
 
 
 def wait_for_element(driver, locator, timeout=20):
-    return WebDriverWait(driver, timeout).until(EC.presence_of_element_located(locator))
+    element = WebDriverWait(driver, timeout).until(EC.presence_of_element_located(locator))
+    sleep(0.5)
+    return element
 
 
 def wait_for_elements(driver, locator, count, timeout=20):
-    return WebDriverWait(driver, timeout).until(lambda d: len(d.find_elements(*locator)) >= count)
+    WebDriverWait(driver, timeout).until(lambda d: len(d.find_elements(*locator)) >= count)
+    sleep(0.5)
 
 
 def wait_for_clickable_element(driver, locator, timeout=20):
-    return WebDriverWait(driver, timeout).until(EC.element_to_be_clickable(locator))
+    element = WebDriverWait(driver, timeout).until(EC.element_to_be_clickable(locator))
+    sleep(0.5)
+    return element
 
 
 def click_element(driver, locator, attempts=1, timeout=20):
@@ -29,7 +34,7 @@ def click_element(driver, locator, attempts=1, timeout=20):
             wait_for_clickable_element(driver, locator, timeout).click()
             break
         except StaleElementReferenceException or ElementClickInterceptedException:
-            continue
+            sleep(0.5)
 
 
 def login(driver, email, password):
