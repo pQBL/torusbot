@@ -1,6 +1,7 @@
 import os
 import sys
 from page_definition import Page_definition
+from time import sleep
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -168,6 +169,7 @@ def main():
     for question in page_definition.questions[:2]:
         add_multiple_choice_question(driver, question)
 
+    sleep(3)
     print("Deployment successful!")
     print(f"Edit URL: {driver.current_url}")
     print(f"Preview URL: {driver.current_url.replace('/resource/', '/preview/')}")
