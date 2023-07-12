@@ -171,7 +171,7 @@ def main():
 
     create_page(driver, page_definition.page)
 
-    for question in page_definition.questions[:2]:
+    for question in page_definition.questions:
         add_multiple_choice_question(driver, question)
 
     sleep(3)
