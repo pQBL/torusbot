@@ -153,9 +153,7 @@ def main():
     page_definition = Page_definition.from_file(sys.argv[1])
 
     chrome_options = Options()
-    chrome_options.add_argument("--headless=new")
-    chrome_options.add_argument("user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36")
-    chrome_options.add_argument("--window-size=1920,1080")
+    # chrome_options.add_argument("--headless=new")
     driver = webdriver.Chrome(options=chrome_options)
 
     driver.get(os.getenv('CURRICULUM_URL'))
