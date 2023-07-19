@@ -39,7 +39,7 @@ class Question:
                                   question_block, re.DOTALL).group(1).strip()
         # Only takes the first 3 answer options
         answer_options = re.findall(r'[A-Z]\)\s+(.+)', question_block)[:3]
-        feedback = re.findall(r'\s+-\s+(.*?)', question_block)
+        feedback = re.findall(r'\n\s+-\s+(.*)', question_block)
         correct_option = next((i for i, text in enumerate(
             feedback) if text[:7].lower() == "correct"), None)
 
