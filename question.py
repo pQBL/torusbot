@@ -1,18 +1,30 @@
-# Format for input:
-"""When is it more advantageous to use pointer receivers over value receivers in Go?
+# Example format for input:
+"""Consider the following struct in Go:
 
-    A) When the method needs to modify the receiver value or when the receiver is a large struct.
-    - Correct! Using pointer receivers can be more efficient when the receiver is a large struct because it avoids copying the value. Also, if the method needs to modify the receiver value, a pointer receiver is required.
+```go
+type Student struct {
+    name   string
+    age    int
+    grades []int
+}
+```
 
-    B) It is always better to use value receivers in Go.
-    - Incorrect! This is a misconception. While value receivers can be easier to understand and use, there are situations where pointer receivers are more efficient or necessary, such as when the method needs to modify the receiver value or when the receiver is a large struct.
+Which of the following is the correct way to instantiate this struct?
 
-    C) It is always better to use pointer receivers in Go.
-    - Incorrect! This is a misconception. The choice between value receivers and pointer receivers depends on the specific requirements and constraints of the situation. For example, value receivers are typically used when the method does not need to modify the receiver and the receiver is a small struct.
+    A) `s := Student("John", 20, {90, 80, 85})`
+    - Incorrect. In Go, a struct is instantiated using curly braces `{}` with field-value pairs. Also, slice values need to be specified with the `[]int` keyword.
+
+    B) `s := Student{name: "John", age: 20, grades: []int{90, 80, 85}}`
+    - Correct. This is the correct way to instantiate a struct in Go, using the field names followed by colon `:` and their corresponding values inside curly braces `{}`.
+
+    C) `s := Student{"John", 20, []int{90, 80, 85}}`
+    - Incorrect. Though this method of instantiation is technically correct, it is not recommended for structs with more than a few fields or if fields are added/removed over time, as it relies on the order of the fields.
 """
 
 from typing import List
 from dataclasses import dataclass
+import re
+
 
 @dataclass
 class Question:
@@ -23,9 +35,12 @@ class Question:
 
     @classmethod
     def from_string(cls, question_block: str) -> 'Question':
-        lines = question_block.strip().split("\n")
-        question_text = lines[0].strip()
-        answer_options = [lines[i].strip()[3:] for i in range(2, len(lines), 3)]
-        feedback = [lines[i].strip()[2:] for i in range(3, len(lines), 3)]
-        correct_option = next((i for i, x in enumerate(feedback) if x[:7].lower() == "correct"), None)
+        question_text = re.search(r'(.+?\?)\s+A\)',
+                                  question_block, re.DOTALL).group(1).strip()
+        # Only parses options A-C
+        answer_options = re.findall(r'[A-C]\)\s+(.+)', question_block)
+        feedback = re.findall(r'\s+-\s+(.*?)', question_block)
+        correct_option = next((i for i, text in enumerate(
+            feedback) if text[:7].lower() == "correct"), None)
+
         return cls(question_text, answer_options, feedback, correct_option)
