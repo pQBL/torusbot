@@ -37,8 +37,8 @@ class Question:
     def from_string(cls, question_block: str) -> 'Question':
         question_text = re.search(r'(.+?\?)\s+A\)',
                                   question_block, re.DOTALL).group(1).strip()
-        # Only parses options A-C
-        answer_options = re.findall(r'[A-C]\)\s+(.+)', question_block)
+        # Only takes the first 3 answer options
+        answer_options = re.findall(r'[A-Z]\)\s+(.+)', question_block)[:3]
         feedback = re.findall(r'\s+-\s+(.*?)', question_block)
         correct_option = next((i for i, text in enumerate(
             feedback) if text[:7].lower() == "correct"), None)
