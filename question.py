@@ -35,7 +35,6 @@ class Question:
 
     @classmethod
     def from_string(cls, question_block: str) -> 'Question':
-        print(question_block)
         question_text = re.search(r'(.+?)\s+A\)',
                                   question_block, re.DOTALL).group(1).strip()
         # Only takes the first 3 answer options
