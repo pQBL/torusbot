@@ -111,7 +111,8 @@ def add_multiple_choice_question(driver, question):
     question_block = driver.find_elements(*resource_block_locator)[-1]
     fill_in_question(question_block, question)
     fill_in_answer_options(question_block, question)
-    question_block.find_element(By.LINK_TEXT, "ANSWER KEY").click()
+    driver.execute_script("arguments[0].scrollIntoView();", question_block) # make sure ANSWER KEY btn is visible
+    click_element(question_block, (By.LINK_TEXT, "ANSWER KEY"))
     fill_in_feedback(question_block, question)
 
 
