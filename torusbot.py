@@ -126,7 +126,7 @@ def add_new_multiple_choice_question(driver):
 
 
 def fill_in_question(question_block, question):
-    question_block.find_elements(By.CSS_SELECTOR, ".slate-editor")[0].send_keys(question.question_text)
+    question_block.find_elements(By.CSS_SELECTOR, ".slate-editor")[0].send_keys(question.question_text.replace("```", "")) # replace due to OLI otherwise creating hard to manage text blocks
 
 
 def fill_in_answer_options(question_block, question):
