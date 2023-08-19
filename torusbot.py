@@ -179,7 +179,8 @@ def main(is_retry=False):
     create_page(driver, page_definition.page)
 
     global page_has_been_created
-    page_has_been_created = True
+    if not is_retry:
+        page_has_been_created = True
 
     for question in page_definition.questions:
         add_multiple_choice_question(driver, question)
