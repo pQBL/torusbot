@@ -11,20 +11,25 @@ from selenium.common.exceptions import StaleElementReferenceException, ElementCl
 from selenium.webdriver.chrome.options import Options
 
 
+TORUS_BOT_DELAY = 0.5
+page_has_been_created = False
+
+
 def wait_for_element(driver, locator, timeout=20):
     element = WebDriverWait(driver, timeout).until(EC.presence_of_element_located(locator))
-    sleep(0.5)
+    sleep(TORUS_BOT_DELAY)
     return element
 
 
 def wait_for_elements(driver, locator, count, timeout=20):
     WebDriverWait(driver, timeout).until(lambda d: len(d.find_elements(*locator)) >= count)
-    sleep(0.5)
+    sleep(TORUS_BOT_DELAY)
+    return driver.find_elements(*locator)
 
 
 def wait_for_clickable_element(driver, locator, timeout=20):
     element = WebDriverWait(driver, timeout).until(EC.element_to_be_clickable(locator))
-    sleep(0.5)
+    sleep(TORUS_BOT_DELAY)
     return element
 
 
@@ -34,7 +39,7 @@ def click_element(driver, locator, attempts=1, timeout=20):
             wait_for_clickable_element(driver, locator, timeout).click()
             break
         except StaleElementReferenceException or ElementClickInterceptedException:
-            sleep(0.5)
+            sleep(TORUS_BOT_DELAY)
 
 
 def login(driver, email, password):
@@ -155,11 +160,12 @@ def fill_in_feedback(question_block, question):
         targeted_feedback_card.find_element(By.CSS_SELECTOR, ".slate-editor").send_keys(question.feedback[option_index])
 
 
-def main():
+def main(is_retry=False):
+    
     page_definition = Page_definition.from_file(sys.argv[1])
 
     chrome_options = Options()
-    chrome_options.add_argument("--headless=new")
+    # chrome_options.add_argument("--headless=new")
     driver = webdriver.Chrome(options=chrome_options)
 
     driver.get(os.getenv('CURRICULUM_URL'))
@@ -171,14 +177,27 @@ def main():
 
     create_page(driver, page_definition.page)
 
+    global page_has_been_created
+    page_has_been_created = True
+
     for question in page_definition.questions:
         add_multiple_choice_question(driver, question)
 
     sleep(3)
+
     print("Deployment successful!")
     print(f"Edit URL: {driver.current_url}")
     print(f"Preview URL: {driver.current_url.replace('/resource/', '/preview/')}")
+    if is_retry and page_has_been_created:
+        print("Due to retry of the deployment an artefact page was created. Name of the artefact is the same as created page. Please remove it manually.")
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        if type(e) == KeyboardInterrupt:
+            exit(0)
+        print(e)
+        TORUS_BOT_DELAY = 2
+        main(is_retry=True)
