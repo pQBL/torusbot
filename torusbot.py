@@ -70,7 +70,7 @@ def open_unit(driver, unit_name):
 def create_unit(driver, unit_name):
     create_new_unit_locator = (By.CSS_SELECTOR, 'button[phx-value-type="Container"]')
     unit_drop_down_menu_locator = (By.CSS_SELECTOR, ".btn.dropdown-toggle")
-    options_svg_locator = (By.CSS_SELECTOR, 'svg[data-icon="sliders"]')
+    options_locator = (By.CSS_SELECTOR, 'button[phx-click="show_options_modal"]')
     edit_title_locator = (By.ID, "revision-settings-form_title")
     unit_edit_form_locator = (By.ID, "revision-settings-form")
     save_btn_locator = (By.CSS_SELECTOR, ".btn.btn-primary")
@@ -79,7 +79,8 @@ def create_unit(driver, unit_name):
     click_element(driver, create_new_unit_locator, 5)
     wait_for_elements(driver, unit_drop_down_menu_locator, prev_num_units + 1)
     driver.find_elements(*unit_drop_down_menu_locator)[-1].click()
-    driver.find_elements(*options_svg_locator)[-1].find_element(By.XPATH, "..").click()
+    wait_for_elements(driver, options_locator, prev_num_units + 1)
+    driver.find_elements(*options_locator)[-1].click()
     wait_for_element(driver, edit_title_locator).send_keys(Keys.BACKSPACE * 8 + unit_name)
     driver.find_element(*unit_edit_form_locator).find_element(*save_btn_locator).click()
 
